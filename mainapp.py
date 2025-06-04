@@ -25,5 +25,26 @@ def get_all():
 
     return jsonify(habits), 200
 
+@app.route('/habits/<int:habit_id>', methods=['GET'])
+def get_habit_by_id(habit_id):
+    conn = sqlite3.connect('habits.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM habits WHERE id = ?', (habit_id,))
+    habit = cursor.fetchone()
+    conn.close()
+
+    if habit is None:
+        return jsonify({'error': 'Habit not found'}), 404
+    
+    result = {
+        'id': habit[0],
+        'name': habit[1],
+        'date': habit[2],
+        'status': habit[3],
+        'note': habit[4]
+    }
+    return jsonify(result), 200
+
 if __name__ == "__main__":
     app.run(debug = True)
