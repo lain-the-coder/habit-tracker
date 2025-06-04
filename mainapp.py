@@ -1,10 +1,29 @@
-from flask import Flask
+from flask import Flask, jsonify, request
+import sqlite3
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "This is my starter home page for my habit tracker app!"
+@app.route('/habits', methods=['GET'])
+def get_all():
+    conn = sqlite3.connect('habits.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * from habits')
+    rows = cursor.fetchall()
+    conn.close()
+
+    habits = []
+    for row in rows:
+        habit = {
+            'id': row[0],
+            'name': row[1],
+            'date': row[2],
+            'status': row[3],
+            'note': row[4]
+        }
+        habits.append(habit)
+
+    return jsonify(habits), 200
 
 if __name__ == "__main__":
     app.run(debug = True)
