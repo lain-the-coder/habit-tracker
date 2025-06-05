@@ -141,5 +141,23 @@ def update_habit(habit_id):
     }
     return jsonify(updated_habit), 200
 
+@app.route('/habits/<int:habit_id>', methods=['DELETE'])
+def delete_habit(habit_id):
+    conn = sqlite3.connect('habits.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM habits where id = ?', (habit_id,))
+    habit = cursor.fetchone()
+
+    if habit is None:
+        conn.close()
+        return jsonify({'error': 'Habit not found for specified ID'}), 404
+    
+    cursor.execute('DELETE FROM habits where id = ?', (habit_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': f'Habit {habit_id} deleted successfully'}), 200
+
 if __name__ == "__main__":
     app.run(debug = True)
